@@ -61,6 +61,8 @@ def _vtk_cc_library(
         if not visibility:
             visibility = ["//visibility:private"]
 
+    visibility = ["//visibility:public"]
+
     if not deps:
         deps = []
 
@@ -79,7 +81,12 @@ def _vtk_cc_library(
             ]
     elif os_result.is_ubuntu:
         if not header_only:
-            srcs = ["lib/lib{}-{}.so.1".format(name, VTK_MAJOR_MINOR_VERSION)]
+            # srcs = ["lib/lib{}-{}.so.1".format(name, VTK_MAJOR_MINOR_VERSION)]
+            lib_dir = "/home/local/KHQ/ryan.krattiger/Projects/drake/vtk/src/dev/build/install/lib"
+            linkopts = linkopts+ [
+                    "-L{}".format(lib_dir),
+                    "-l{}-{}".format(name, VTK_MAJOR_MINOR_VERSION)
+                    ]
     elif os_result.is_manylinux:
         if not header_only:
             # TODO(jwnimmer-tri) Ideally, we wouldn't be hard-coding paths when
@@ -117,27 +124,29 @@ def _impl(repository_ctx):
             VTK_MAJOR_MINOR_PATCH_VERSION,
         ), "include")
     elif os_result.is_ubuntu:
-        if os_result.ubuntu_release == "18.04":
-            archive = "vtk-9.1.0-1-bionic-x86_64.tar.gz"
-            sha256 = "1b51691d09c9fa77a74ad237fe320fed606e071f732f10645efeffa859352bb6"  # noqa
-        elif os_result.ubuntu_release == "20.04":
-            archive = "vtk-9.1.0-1-focal-x86_64.tar.gz"
-            sha256 = "b21e8b98ad71da205305bc074d8e3d4208e9dff307ae716384cefb4d1e606d2f"  # noqa
-        else:
-            fail("Operating system is NOT supported {}".format(os_result))
+        inc_dir = "/home/local/KHQ/ryan.krattiger/Projects/drake/vtk/src/dev/build/install/include"
+        repository_ctx.symlink(inc_dir, "include")
+        # if os_result.ubuntu_release == "18.04":
+        #     archive = "vtk-9.1.0-1-bionic-x86_64.tar.gz"
+        #     sha256 = "1b51691d09c9fa77a74ad237fe320fed606e071f732f10645efeffa859352bb6"  # noqa
+        # elif os_result.ubuntu_release == "20.04":
+        #     archive = "vtk-9.1.0-1-focal-x86_64.tar.gz"
+        #     sha256 = "b21e8b98ad71da205305bc074d8e3d4208e9dff307ae716384cefb4d1e606d2f"  # noqa
+        # else:
+        #     fail("Operating system is NOT supported {}".format(os_result))
 
-        urls = [
-            x.format(archive = archive)
-            for x in repository_ctx.attr.mirrors.get("vtk")
-        ]
-        root_path = repository_ctx.path("")
+        # urls = [
+        #     x.format(archive = archive)
+        #     for x in repository_ctx.attr.mirrors.get("vtk")
+        # ]
+        # root_path = repository_ctx.path("")
 
-        repository_ctx.download_and_extract(
-            urls,
-            output = root_path,
-            sha256 = sha256,
-            type = "tar.gz",
-        )
+        # repository_ctx.download_and_extract(
+        #     urls,
+        #     output = root_path,
+        #     sha256 = sha256,
+        #     type = "tar.gz",
+        # )
     elif os_result.is_manylinux:
         repository_ctx.symlink("/opt/vtk/include", "include")
     else:
@@ -241,6 +250,7 @@ licenses([
         "vtkCommonCore",
         hdrs = [
             "vtkABI.h",
+            "vtkABINamespace.h",
             "vtkAOSDataArrayTemplate.h",
             "vtkAbstractArray.h",
             "vtkAssume.h",
@@ -291,9 +301,26 @@ licenses([
             "vtkOptions.h",
             "vtkPlatform.h",
             "vtkPoints.h",
+            "vtkRenderingHyperTreeGridModule.h",
+            "vtkEventData.h",
+            "vtkSelection.h",
             "vtkSetGet.h",
             "vtkSmartPointer.h",
             "vtkSmartPointerBase.h",
+            "vtkSMP.h",
+            "vtkSMPTools.h",
+            "vtkSMPThreadLocal.h",
+            "SMP/Common/vtkSMPToolsAPI.h",
+            "SMP/Common/vtkSMPToolsImpl.h",
+            "SMP/Common/vtkSMPToolsInternal.h",
+            "SMP/Common/vtkSMPThreadLocalAPI.h",
+            "SMP/Common/vtkSMPThreadLocalImplAbstract.h",
+            "SMP/Sequential/vtkSMPThreadLocalImpl.h",
+            "SMP/Sequential/vtkSMPToolsImpl.txx",
+            "SMP/STDThread/vtkSMPToolsImpl.txx",
+            "SMP/STDThread/vtkSMPThreadPool.h",
+            "SMP/STDThread/vtkSMPThreadLocalBackend.h",
+            "SMP/STDThread/vtkSMPThreadLocalImpl.h",
             "vtkStdString.h",
             "vtkSystemIncludes.h",
             "vtkTimeStamp.h",

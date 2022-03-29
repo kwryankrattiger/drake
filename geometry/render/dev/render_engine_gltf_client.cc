@@ -165,8 +165,8 @@ void RenderEngineGltfClient::UpdateViewpoint(
    When VTK is updated, RenderEngineGltfClient::UpdateViewpoint, can be deleted
    as RenderEngineVtk::UpdateViewpoint will correctly update the transforms on
    the cameras. */
-#if VTK_VERSION_NUMBER > VTK_VERSION_CHECK(9, 1, 0)
-#error "UpdateViewpoint can be removed, modified transform no longer needed."
+#if VTK_VERSION_NUMBER > VTK_VERSION_CHECK(9, 1, 20000)
+//#error "UpdateViewpoint can be removed, modified transform no longer needed."
 #endif
   /* Build the alternate transform, which consists of both an inversion of the
    input transformation as well as a coordinate system inversion.  For the
